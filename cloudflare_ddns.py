@@ -6,8 +6,7 @@ import requests as r
 class CloudflareDDNS():
     api_key = "PUT_YOUR_KEY_HERE"
     email = "nsimon@protonmail.com"
-    zone_ids = []
-    A_records_ids = []
+    recordsToChange = ['test.example.com'] # List of records or None to skip
 
 
     def __init__(self, api_key=None):
@@ -22,10 +21,11 @@ class CloudflareDDNS():
         self.zone_ids = self.get_zone_ids() #TODO
         for zone_id in self.zone_ids:
             for A_record in self.get_A_records(zone_id):
-                if A_record['content'] != self.ip:
-                    self.update_record(zone_id, A_record)
-                else:
-                    print("IP matches, no need to update {} record for zone {}".format(A_record['type'], zone_id))
+                if not self.recordsToChange or A_record['name'] in self.recordsToChange:
+                    if A_record['content'] != self.ip:
+                        self.update_record(zone_id, A_record)
+                    else:
+                        print("IP matches, no need to update {} record for zone {}".format(A_record['type'], zone_id))
         print("Done.")
 
     def get_zone_ids(self):
